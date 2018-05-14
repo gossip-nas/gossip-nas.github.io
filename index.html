@@ -38,7 +38,7 @@
             var url = new URL(window.location.href);
             var referee = url.searchParams.get("referee");
             if (referee) {
-                document.getElementById("referee").innerHTML = referee;
+                document.getElementById("referee").innerHTML ="Referee: " referee;
             } else {
                 document.getElementById("referee").style.display = 'none';
             }
