@@ -69,9 +69,6 @@
             var nebPay = new NebPay();
 
             nebPay.call(contractAddress, "1", "deposit", args, {
-                qrcode: {
-                    showQRCode: true
-                },
                 listener: succeedCallback
             });
 
