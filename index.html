@@ -53,8 +53,7 @@
 
         function getLink(){
                 var referee = window.prompt("Please input your wallet address again. Make sure the address is deposit!");
-                var url = new URL(window.location.href);
-                url.searchParams.set("referee", referee);
+                var url = "https://gossip-nas.github.io/index.html?referee=" + referee
                 document.getElementById("referee").innerHTML = url;
                 document.getElementById("referee").style.display = 'block';
         }
