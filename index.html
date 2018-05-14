@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="lib/nebpay.js"> </script>
+
+    <title>Gossip</title>
+    <style>
+        .button {
+            background-color: #323232;
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #000000;
+        }
+    </style>
+
+
+
+    <script>
+
+        function sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        function init() {
+            var url = new URL(window.location.href);
+            var referee = url.searchParams.get("referee");
+            if (referee) {
+                document.getElementById("referee").innerHTML = referee;
+            } else {
+                document.getElementById("referee").style.display = 'none';
+            }
+        }
+
+        function succeedCallback(resp) {
+
+            console.log(resp)
+            if (resp.txhash) {
+                document.getElementById("click").onclick = getLink;
+                document.getElementById("click").innerHTML = "Click to get invitation link"
+                document.getElementById("referee").style.display = 'none';
+            }
+        }
+
+
+        function getLink(){
+                var referee = window.prompt("Please input your wallet address again. Make sure the address is deposit!");
+                var url = new URL(window.location.href);
+                url.searchParams.set("referee", referee);
+                document.getElementById("referee").innerHTML = url;
+                document.getElementById("referee").style.display = 'block';
+        }
+
+        function deposit() {
+            var referee = document.getElementById("referee").innerHTML;
+            var contractAddress = "n1zzuXaxw1go4FvGkRAsjUTBnuZBRzJEL4y";
+
+            var args = "[\"" + referee + "\"]";
+
+            var NebPay = require("nebpay");
+            var nebPay = new NebPay();
+
+            nebPay.call(contractAddress, "1", "deposit", args, {
+                qrcode: {
+                    showQRCode: true
+                },
+                listener: succeedCallback
+            });
+
+        }
+
+    </script>
+
+</head>
+
+<body onload="init()">
+    <div id="main" style="margin-top:100px">
+        <center>
+            <h1>Spread NAS by Gossip</h1>
+            <img style="margin-top:50px" src="./NebulasLogo.svg" />
+            <h2 style="margin-top:100px">Deposit one NAS, then earn one NAS from every member you refer.</h2>
+            <span style="margin-top: 30px">
+                <button type="button" class="button" onclick="deposit()" id="click">Click to start </button>
+                <h2 id="referee" style="background-color:#A8A8A8; border:dashed;width:600px"></h2>
+                
+            </span>
+        </center>
+    </div>
+    <div style="margin-top:50px"> <h4><center>Powered by <a style="color:inherit;" href="https://nebulas.io/">Nebulas</a>, <a style="color:inherit;" href="https://incentive.nebulas.io/signup.html?invite=bSWlk">get 100 NAS by submitting a dapp.</a></center></h4></div>
+</body>
+
+</html>
