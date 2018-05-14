@@ -26,6 +26,10 @@
 
     <script>
 
+        var NebPay = require("nebpay");
+        var nebPay = new NebPay();
+        var serialNumber;
+
         function sleep(time) {
             return new Promise((resolve) => setTimeout(resolve, time));
         }
@@ -40,38 +44,42 @@
             }
         }
 
-        function succeedCallback(resp) {
-
-            console.log(resp)
-            if (resp.txhash) {
-                document.getElementById("click").onclick = getLink;
-                document.getElementById("click").innerHTML = "Click to get invitation link"
-                document.getElementById("referee").style.display = 'none';
-            }
-        }
-
-
-        function getLink(){
-                var referee = window.prompt("Please input your wallet address again. Make sure the address is deposit!");
-                var url = "https://gossip-nas.github.io/index.html?referee=" + referee
-                document.getElementById("referee").innerHTML = url;
-                document.getElementById("referee").style.display = 'block';
+        function getLink() {
+            var referee = window.prompt("Please input your wallet address again. Make sure the address is deposit!");
+            
         }
 
         function deposit() {
             var referee = document.getElementById("referee").innerHTML;
             var contractAddress = "n1zzuXaxw1go4FvGkRAsjUTBnuZBRzJEL4y";
-
+            
             var args = "[\"" + referee + "\"]";
 
-            var NebPay = require("nebpay");
-            var nebPay = new NebPay();
+            serialNumber = nebPay.call(contractAddress, "1", "deposit", args, {});
 
-            nebPay.call(contractAddress, "1", "deposit", args, {
-                listener: succeedCallback
-            });
+            intervalQuery = setInterval(function () {
+                funcIntervalQuery();
+            }, 10000)
 
         }
+        function funcIntervalQuery() {
+            nebPay.queryPayInfo(serialNumber)   //search transaction result from server (result upload to server by app)
+                .then(function (resp) {
+                    console.log("tx result: " + resp);   //resp is a JSON string
+                    var respObject = JSON.parse(resp);
+                    if (respObject.code === 0 && respObject.msg == "success") {
+                        clearInterval(intervalQuery);    //stop the periodically query
+                        var referee = respObject.data.from;
+                        var url = "https://gossip-nas.github.io/index.html?referee=" + referee
+                        document.getElementById("referee").innerHTML = url;
+                        document.getElementById("referee").style.display = 'block';
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+        }
+
 
     </script>
 
@@ -86,11 +94,18 @@
             <span style="margin-top: 30px">
                 <button type="button" class="button" onclick="deposit()" id="click">Click to start </button>
                 <h2 id="referee" style="background-color:#A8A8A8; border:dashed;width:600px"></h2>
-                
+
             </span>
         </center>
     </div>
-    <div style="margin-top:50px"> <h4><center>Powered by <a style="color:inherit;" href="https://nebulas.io/">Nebulas</a>, <a style="color:inherit;" href="https://incentive.nebulas.io/signup.html?invite=bSWlk">get 100 NAS by submitting a dapp.</a></center></h4></div>
+    <div style="margin-top:50px">
+        <h4>
+            <center>Powered by
+                <a style="color:inherit;" href="https://nebulas.io/">Nebulas</a>,
+                <a style="color:inherit;" href="https://incentive.nebulas.io/signup.html?invite=bSWlk">get 100 NAS by submitting a dapp.</a>
+            </center>
+        </h4>
+    </div>
 </body>
 
 </html>
